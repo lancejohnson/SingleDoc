@@ -3,6 +3,7 @@ import requests_cache
 from bs4 import BeautifulSoup
 import tldextract
 from time import sleep
+import os
 
 
 requests_cache.install_cache('cache')
@@ -62,7 +63,15 @@ while urls_to_scrape:
     url = urls_to_scrape.pop()
     scrape_url(url)
 
-# Write the text content of each page to a file
-with open('finished_docs/close_crm_docs.html', 'w') as file:
-    for url, text in page_content_htmls.items():
-        file.write(f"<h1>{url}<br/>{text}</h1>")
+# Ensure the directory exists
+output_dir = 'finished_docs/close_crm'
+os.makedirs(output_dir, exist_ok=True)
+
+# Write the text content of each page to a separate file
+for url, text in page_content_htmls.items():
+    # Create a valid filename from the URL
+    filename = url.replace("https://", "").replace("/", "_") + ".html"
+    filepath = os.path.join(output_dir, filename)
+
+    with open(filepath, 'w') as file:
+        file.write(f"<h1>{url}</h1><br/>{text}")
