@@ -9,7 +9,7 @@ requests_cache.install_cache('cache')
 cache = requests_cache.get_cache()
 
 # Set the starting URL
-start_url = "https://developer.close.io"
+start_url = "https://developer.close.com"
 
 # Extract the subdomain
 subdomain = tldextract.extract(start_url).subdomain
