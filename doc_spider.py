@@ -25,7 +25,35 @@ scraped_urls = set()
 subdomain_urls = set()
 
 # Create a dictionary to store the text content of each page
-page_content_htmls = {}
+page_content_txts = {}
+
+
+def html_to_md(soup):
+    md_content = []
+
+    for element in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'li', 'ul', 'ol']):
+        if element.name == 'h1':
+            md_content.append(f"# {element.get_text()}\n")
+        elif element.name == 'h2':
+            md_content.append(f"## {element.get_text()}\n")
+        elif element.name == 'h3':
+            md_content.append(f"### {element.get_text()}\n")
+        elif element.name == 'h4':
+            md_content.append(f"#### {element.get_text()}\n")
+        elif element.name == 'h5':
+            md_content.append(f"##### {element.get_text()}\n")
+        elif element.name == 'h6':
+            md_content.append(f"###### {element.get_text()}\n")
+        elif element.name == 'p':
+            md_content.append(f"{element.get_text()}\n")
+        elif element.name == 'a':
+            md_content.append(f"[{element.get_text()}]({element.get('href')})\n")
+        elif element.name == 'li':
+            md_content.append(f"- {element.get_text()}\n")
+        elif element.name in ['ul', 'ol']:
+            md_content.append("\n")
+
+    return ''.join(md_content)
 
 
 # Create a function to scrape a URL
@@ -49,7 +77,7 @@ def scrape_url(url):
     if not page_content_html:
         print("No HTML for that CSS Selector")
         # Save the HTML content of the page
-    page_content_htmls[url] = str(page_content_html)
+    page_content_txts[url] = str(html_to_md(page_content_html))
     # Pause for two seconds
     is_cached = cache.contains(response.cache_key)
     print(f"{full_url} Done | Cached = {is_cached}")
@@ -68,9 +96,9 @@ output_dir = 'finished_docs/close_crm'
 os.makedirs(output_dir, exist_ok=True)
 
 # Write the text content of each page to a separate file
-for url, text in page_content_htmls.items():
+for url, text in page_content_txts.items():
     # Create a valid filename from the URL
-    filename = url.replace("https://", "").replace("/", "_") + ".html"
+    filename = url.replace("https://", "").replace("/", "_") + ".txt"
     filepath = os.path.join(output_dir, filename)
 
     with open(filepath, 'w') as file:
